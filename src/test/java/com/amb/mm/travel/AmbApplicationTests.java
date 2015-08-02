@@ -35,8 +35,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.hamcrest.Matchers.*;
 
 /**
  * Integration test to run the application.
@@ -80,5 +83,38 @@ public class AmbApplicationTests {
 						.queryMBeans(new ObjectName("amb.mm.travel:type=ConnectionPool,*"),
 								null).size());
 	}
+	
+	/* BUS Controller tests
+	 * */
+	
+//	@Test
+//	public void testBuses() throws Exception {
+//
+//		this.mvc.perform(get("/buses")).andExpect(status().isOk());
+//	}
 
+	@Test
+	public void testFindBusSchedules() throws Exception {
+
+		this.mvc.perform(get("/bus/search/api/findByRoute?from=1&to=2&date=2015-08-01")).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testFindAllBusRoutes() throws Exception {
+
+		this.mvc.perform(get("/bus/search/api/routes")).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testFindAllBusOffers() throws Exception {
+
+		this.mvc.perform(get("/bus/offers?from=1&to=2&date=2015-08-01")).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testPlaceBusOrder() throws Exception {
+
+		
+//		this.mvc.perform(post("/bus/offers/api/order").(name, values)).andExpect(status().isOk());
+	}
 }

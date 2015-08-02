@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amb.mm.travel.service;
+package com.amb.mm.travel.hotel.service;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,32 +23,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amb.mm.travel.AmbApplication;
 import com.amb.mm.travel.core.City;
+import com.amb.mm.travel.hotel.Hotel;
 import com.amb.mm.travel.core.service.CityRepository;
+import com.amb.mm.travel.hotel.service.HotelRepository;
+import com.amb.mm.travel.hotel.HotelSummary;
+import com.amb.mm.travel.hotel.Rating;
+import com.amb.mm.travel.hotel.RatingCount;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
- * Integration tests for {@link CityRepository}.
+ * Integration tests for {@link HotelRepository}.
  *
  * @author Oliver Gierke
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = AmbApplication.class)
-public class CityRepositoryIntegrationTests {
+public class HotelRepositoryIntegrationTests {
 
 	@Autowired
-	CityRepository repository;
+	CityRepository cityRepository;
+	@Autowired
+	HotelRepository repository;
 
 	@Test
-	public void findsFirstPageOfCities() {
+	public void executesQueryMethodsCorrectly() {
+		City city = this.cityRepository
+				.findAll(new PageRequest(0, 1, Direction.ASC, "name")).getContent()
+				.get(0);
+		assertThat(city.getName(), is("Atlanta"));
 
-		Page<City> cities = this.repository.findAll(new PageRequest(0, 10));
-		assertThat(cities.getTotalElements(), is(greaterThan(20L)));
+		Page<HotelSummary> hotels = this.repository.findByCity(city, new PageRequest(0,
+				10, Direction.ASC, "name"));
+		Hotel hotel = this.repository.findByCityAndName(city, hotels.getContent().get(0)
+				.getName());
+		assertThat(hotel.getName(), is("Doubletree"));
+
+		List<RatingCount> counts = this.repository.findRatingCounts(hotel);
+		assertThat(counts, hasSize(1));
+		assertThat(counts.get(0).getRating(), is(Rating.AVERAGE));
+		assertThat(counts.get(0).getCount(), is(greaterThan(1L)));
 	}
 }
