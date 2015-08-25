@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusSchedule;
 import com.amb.mm.travel.core.Route;
 import com.amb.mm.travel.utils.DateTimeHelper;
@@ -17,11 +18,22 @@ import com.amb.mm.travel.utils.DateTimeHelper;
 public class BusServiceImpl implements BusService{
 
 	private final BusScheduleRepository busScheduleRepository;
+	private final BusOfferRepository offerRepo;
 	
 	@Autowired
-	public BusServiceImpl(BusScheduleRepository busScheduleRepository) {
+	public BusServiceImpl(BusScheduleRepository busScheduleRepository, BusOfferRepository offerRepo) {
 		this.busScheduleRepository = busScheduleRepository;
+		this.offerRepo = offerRepo;
 	}
+
+	@Override
+	public List<BusOffer> findBusOffers(Route route) {
+		Assert.notNull(route, "Route must not be null");
+		
+		List<BusOffer> r = this.offerRepo.findByRoute(route);
+		return r;
+	}
+
 	
 	@Override
 	public List<BusSchedule> findBusSchdules(BusSearchCriteria criteria) {

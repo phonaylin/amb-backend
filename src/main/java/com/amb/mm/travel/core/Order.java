@@ -10,13 +10,13 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class Order extends GeneratedIdEntry{
 	@Column(nullable = false)
-	private BigDecimal unitPrice;
+	protected BigDecimal unitPrice;
 	
 	@Column(nullable = false)
-	private Long quantity;
+	protected int quantity;
 	
 	@Column(nullable = false)
-	private BigDecimal totalPrice;
+	protected BigDecimal totalPrice;
 	
 	@Column(nullable = false)
 	@Enumerated(EnumType.ORDINAL)
@@ -26,18 +26,16 @@ public abstract class Order extends GeneratedIdEntry{
 		
 	}
 	
-	public Order(BigDecimal unitPrice, Long quantity, OrderStatusType status) {
+	public Order(BigDecimal unitPrice, OrderStatusType status) {
 		this.unitPrice = unitPrice;
-		this.quantity = quantity;
 		this.orderStatus = status;
-		this.totalPrice = unitPrice.multiply(new BigDecimal(quantity));
 	}
 	
 	public BigDecimal getUnitPrice() {
 		return unitPrice;
 	}
 
-	public Long getQuantity() {
+	public int getQuantity() {
 		return quantity;
 	}
 

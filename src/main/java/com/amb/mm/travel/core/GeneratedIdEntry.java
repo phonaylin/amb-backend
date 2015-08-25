@@ -13,6 +13,15 @@ public abstract class GeneratedIdEntry {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	private Date createdDate;
+	
+	private Date modifiedDate;
+
+//	public GeneratedIdEntry(Date createdDate, Date modifiedDate) {
+//		this.createdDate = createdDate;
+//		this.modifiedDate = modifiedDate;
+//	}
+	
 	/**
 	 * Returns the identifier of the entity.
 	 * 
@@ -21,10 +30,6 @@ public abstract class GeneratedIdEntry {
 	public Long getId() {
 		return id;
 	}
-
-	private Date createdDate;
-	
-	private Date modifiedDate;
 	
 	/* 
 	 * (non-Javadoc)

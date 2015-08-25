@@ -18,22 +18,19 @@ package com.amb.mm.travel.bus.service;
 
 import java.util.List;
 
-import com.amb.mm.travel.bus.BusOffer;
-import com.amb.mm.travel.bus.BusOrder;
-import com.amb.mm.travel.core.Customer;
-import com.amb.mm.travel.core.Route;
+import com.amb.mm.travel.bus.BusOrderDto;
 
 public interface BusOrderService {
 
-	List<BusOffer> findBusOffers(Route route);
-
-	BusOrder placeOrder(BusOrder order);
+	BusOrderDto findOne(Long orderId);
 	
-	BusOrder cancelOrder(BusOrder order);
+	BusOrderDto placeOrder(BusOrderDto order);
 	
-	BusOrder changeOrder(BusOrder order);
+	boolean cancelOrder(Long orderId);
 	
-	List<BusOrder> findBusOrders(Customer customer);
+	boolean changeOrder(Long orderId, BusOrderDto order);
+	
+	List<BusOrderDto> findOrdersByCustomer(Long customerId);
 	
 	
 }

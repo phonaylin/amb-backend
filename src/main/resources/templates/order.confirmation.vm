@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <h3>Hi ${order.customer.firstName}, welcome to the Chipping Sodbury On-the-Hill message boards!</h3>
+
+        <div>
+            Order price is  ${order.unitPrice}
+        </div>
+    </body>
+</html>

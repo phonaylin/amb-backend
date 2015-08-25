@@ -18,9 +18,13 @@ package com.amb.mm.travel.bus.service;
 
 import java.util.List;
 
+import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusSchedule;
+import com.amb.mm.travel.core.Route;
 
 public interface BusService {
 
 	List<BusSchedule> findBusSchdules(BusSearchCriteria criteria);
+
+	List<BusOffer> findBusOffers(Route route);
 }

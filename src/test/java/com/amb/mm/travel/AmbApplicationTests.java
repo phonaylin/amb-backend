@@ -96,13 +96,13 @@ public class AmbApplicationTests {
 	@Test
 	public void testFindBusSchedules() throws Exception {
 
-		this.mvc.perform(get("/bus/search/api/findByRoute?from=1&to=2&date=2015-08-01")).andExpect(status().isOk());
+		this.mvc.perform(get("/bus/api/findByRoute?from=1&to=2&date=2015-08-01")).andExpect(status().isOk());
 	}
 	
 	@Test
 	public void testFindAllBusRoutes() throws Exception {
 
-		this.mvc.perform(get("/bus/search/api/routes")).andExpect(status().isOk());
+		this.mvc.perform(get("/bus/routes")).andExpect(status().isOk());
 	}
 	
 	@Test
@@ -112,9 +112,12 @@ public class AmbApplicationTests {
 	}
 	
 	@Test
-	public void testPlaceBusOrder() throws Exception {
-
-		
-//		this.mvc.perform(post("/bus/offers/api/order").(name, values)).andExpect(status().isOk());
+	public void testGetOrder1() throws Exception {
+		this.mvc.perform(get("/bus/orders?customerId=1")).andExpect(status().isOk());
 	}
+	
+//	@Test
+//	public void testPlaceBusOrder() throws Exception {
+//		this.mvc.perform(post("/bus/order")..(name, values)).andExpect(status().isOk());
+//	}
 }

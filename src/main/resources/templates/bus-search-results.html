@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  
+  <head th:include="fragments/head :: head"/>
+  
+  <body id="top">
+    
+	<!-- top wrapper -->
+    <div th:substituteby="fragments/navbar :: navbar"></div>
+
+
+	<div class="container breadcrub">
+        <div>
+            <a class="homebtn left" href="/index"></a>
+            <div class="left">
+                <ul class="bcrumbs">
+                    <li>/</li>
+                    <li><a href="#">Bus</a></li>
+                    <li>/</li>
+                    <li><a href="#">Offers</a></li>
+                </ul>               
+            </div>
+            <a class="backbtn right" href="#"></a>
+        </div>
+        <div class="clearfix"></div>
+        <div class="brlines"></div>
+    </div>  
+
+    <!-- CONTENT -->
+    <div class="container">
+        <div class="container pagecontainer offset-0">  
+
+		<!-- <div class="col-md-9"> -->
+	
+	        <div class="row">
+	            <div class="col-md-12">
+	                <h3 class="title-v2">Choose your ticket</h3>
+	            </div>
+	        </div>
+	                                  
+	        <div class="row-code">
+	            <div class="row row-tabs" role="tabpanel">
+	                <div class="col-md-12">
+	                    <div class="tabs-top">
+	                        <div class="tab-content">
+	                            <table class="table">
+	                                <thead>
+	                                    <tr>
+	                                        <th>Departure Time</th>
+	                                        <th>Bus Type</th>
+	                                        <th>Price (USD)</th>
+	                                        <th></th>
+	                                    </tr>
+	                                </thead>
+	                                <tbody>
+	                                    <tr th:each="offer : ${busOffers}" >
+	                                        <td th:text="${offer.departureTime}"></td>
+	                                        <td th:text="${offer.busType}"></td>
+	                                        <td th:text="${offer.fare}"></td>
+	                                        <td>
+	                                            <div>
+	                                                <button type="submit" class="btn-search">Book</button>
+	                                            </div>
+	                                        </td>
+	                                    </tr>
+	                                </tbody>
+	                            </table>
+	                        </div>
+	
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+			
+	</div>
+
+	<!-- FOOTER -->
+        
+    <div th:substituteby="fragments/footer :: footer"></div>
+        
+	
+	
+
+    <!-- Javascript -->
+	
+    <!-- This page JS -->
+	<!-- <script src="assets/js/js-index.js"></script>	
+	 -->
+	 
+    <!-- Custom functions -->
+    <script src="assets/js/functions.js"></script>
+	
+    <!-- Picker UI-->	
+	<script src="assets/js/jquery-ui.js"></script>		
+	
+	<!-- Easing -->
+    <script src="assets/js/jquery.easing.js"></script>
+	
+    <!-- jQuery KenBurn Slider  -->
+    <!-- <script type="text/javascript" src="rs-plugin/js/jquery.themepunch.revolution.min.js"></script> -->
+	
+   <!-- Nicescroll  -->	
+	<script src="assets/js/jquery.nicescroll.min.js"></script>
+	
+    <!-- CarouFredSel -->
+    <!-- <script src="assets/js/jquery.carouFredSel-6.2.1-packed.js"></script>
+    <script src="assets/js/helper-plugins/jquery.touchSwipe.min.js"></script>
+	<script type="text/javascript" src="assets/js/helper-plugins/jquery.mousewheel.min.js"></script>
+	<script type="text/javascript" src="assets/js/helper-plugins/jquery.transit.min.js"></script>
+	<script type="text/javascript" src="assets/js/helper-plugins/jquery.ba-throttle-debounce.min.js"></script>
+	 -->
+    <!-- Custom Select -->
+	<!-- <script type='text/javascript' src='assets/js/jquery.customSelect.js'></script> -->	
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="dist/js/bootstrap.min.js"></script>
+  </body>
+</html>

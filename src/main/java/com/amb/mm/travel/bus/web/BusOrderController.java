@@ -3,18 +3,14 @@ package com.amb.mm.travel.bus.web;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amb.mm.travel.bus.BusOffer;
-import com.amb.mm.travel.bus.BusOrder;
+import com.amb.mm.travel.bus.BusOrderDto;
 import com.amb.mm.travel.bus.BusSchedule;
 import com.amb.mm.travel.bus.service.BusOrderService;
 import com.amb.mm.travel.bus.service.BusSearchCriteria;
@@ -23,21 +19,21 @@ import com.amb.mm.travel.core.POI;
 import com.amb.mm.travel.core.Route;
 import com.amb.mm.travel.core.service.POIRepository;
 import com.amb.mm.travel.core.service.RouteRepository;
-import com.google.common.net.HttpHeaders;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
-@RequestMapping("/bus/offers")
+@RequestMapping("/bus")
 public class BusOrderController {
 
 	@Autowired
-    BusOrderService service;
+    BusOrderService orderService;
+	
+	@Autowired
+    BusService busService;
 	
 	@Autowired
     RouteRepository routeRepository;
@@ -45,7 +41,37 @@ public class BusOrderController {
 	@Autowired
     POIRepository poiRepository;
 
-	@RequestMapping("")
+	@RequestMapping("/api/findByRoute")
+	@Transactional(readOnly = true)
+	public List<BusSchedule> listBusSchedulesByRoute(@RequestParam("from") Long fromId, 
+			@RequestParam("to") Long toId, @RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date departureDate) {
+		
+		POI originPOI = poiRepository.findOne(fromId);
+		Assert.notNull(originPOI, "From must not be null");
+		
+		POI destPOI = poiRepository.findOne(toId);
+		Assert.notNull(destPOI, "To must not be null");
+		
+		Assert.notNull(departureDate, "Departure date must not be null");
+		
+		Route route = routeRepository.findByOriginPOIAndDestPOI(originPOI, destPOI);
+		Assert.notNull(route, "Cannot find the route requested");
+		
+		BusSearchCriteria criteria = new BusSearchCriteria(route, departureDate);
+		
+		List<BusSchedule> result = busService.findBusSchdules(criteria);
+		return result;
+	}
+	
+	@RequestMapping("/routes")
+	@Transactional(readOnly = true)
+	public Iterable<Route> listBusRoute() {
+		
+		Iterable<Route> routes = routeRepository.findAll();
+		return routes;
+	}
+
+	@RequestMapping("/offers")
 	@Transactional(readOnly = true)
 	public List<BusOffer> listBusOffersByRoute(@RequestParam("from") Long fromId, 
 			@RequestParam("to") Long toId, @RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date departureDate) {
@@ -61,17 +87,26 @@ public class BusOrderController {
 		Route route = routeRepository.findByOriginPOIAndDestPOI(originPOI, destPOI);
 		Assert.notNull(route, "Cannot find the route requested");
 		
-		List<BusOffer> result = service.findBusOffers(route);
+		List<BusOffer> result = busService.findBusOffers(route);
 		return result;
 	}
 	
-	@RequestMapping(value="/api/order", method=RequestMethod.POST)
+	@RequestMapping(value="/orders", method=RequestMethod.GET)
+	@Transactional(readOnly = true)
+	public List<BusOrderDto> getBusOrder(@RequestParam Long customerId) {
+		List<BusOrderDto> orders = orderService.findOrdersByCustomer(customerId);
+		return orders;
+	}
+	
+	@RequestMapping(value="/order", method=RequestMethod.POST)
 	@Transactional
-	public BusOrder createBusOrder(@Valid @RequestBody BusOrder order) {
+	public BusOrderDto createBusOrder(@RequestBody BusOrderDto order) {
+		Assert.notNull(order.getCustomer(), "Customer must not be null");
+		Assert.notNull(order.getPassengers(), "Passengers must not be null");
+		Assert.notEmpty(order.getPassengers(), "Passengers must not be empty");
+		Assert.notNull(order.getOfferId(), "OfferID must not be null");
 		
-		//TODO to validate the order
-		
-		return service.placeOrder(order);
+		return orderService.placeOrder(order);
 	}
 
 }

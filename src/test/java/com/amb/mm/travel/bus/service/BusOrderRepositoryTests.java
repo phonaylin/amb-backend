@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.amb.mm.travel.AmbApplication;
 import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusOrder;
-import com.amb.mm.travel.bus.BusOrderDetail;
+import com.amb.mm.travel.bus.BusOrderItem;
 import com.amb.mm.travel.bus.BusType;
 import com.amb.mm.travel.core.Customer;
 import com.amb.mm.travel.core.OrderStatusType;
@@ -92,22 +92,20 @@ public class BusOrderRepositoryTests {
 	
 	@Test
 	public void saveOrderOK() {
-		BusOrder myOrder = new BusOrder(this.offer, this.customer, 2L);
-		List<BusOrderDetail> orderDetails = new ArrayList<BusOrderDetail>(2);
-		orderDetails.add(new BusOrderDetail(myOrder, customer));
-		orderDetails.add(new BusOrderDetail(myOrder, passenger));
-		myOrder.setOrderDetails(orderDetails);
+		BusOrder myOrder = new BusOrder(this.offer, this.customer, "Comment");
+		myOrder.addOrderItem(new BusOrderItem(myOrder, customer));
+		myOrder.addOrderItem(new BusOrderItem(myOrder, passenger));
 		
 		myOrder = this.orderRepository.save(myOrder);
 		
 		assertThat(myOrder.getBusOffer().getId(), is(equalTo(this.offer.getId())));
 		assertThat(myOrder.getCustomer().getId(), is(equalTo(this.customer.getId())));
-		assertThat(myOrder.getQuantity(), is(equalTo(2L)));
+		assertThat(myOrder.getQuantity(), is(equalTo(2)));
 		assertThat(myOrder.getTotalPrice(), is(equalTo(this.offer.getFare().multiply(new BigDecimal(2)))));
 	
-		assertThat(myOrder.getOrderDetails().size(), is(equalTo(2)));
-		assertThat(myOrder.getOrderDetails().get(0).getPassenger().getFirstName(), is(equalTo(customer.getFirstName())));
-		assertThat(myOrder.getOrderDetails().get(1).getPassenger().getFirstName(), is(equalTo(passenger.getFirstName())));
+		assertThat(myOrder.getOrderItems().size(), is(equalTo(2)));
+		assertThat(myOrder.getOrderItems().get(0).getPassenger().getFirstName(), is(equalTo(customer.getFirstName())));
+		assertThat(myOrder.getOrderItems().get(1).getPassenger().getFirstName(), is(equalTo(passenger.getFirstName())));
 	}
 	
 	@Test
@@ -127,7 +125,7 @@ public class BusOrderRepositoryTests {
 		
 		this.orderRepository.delete(myOrder);
 		
-		assertThat(orderRepository.findByBusOffer(offer).size(), is(0));
+		assertThat(orderRepository.findOne(myOrder.getId()), is(equalTo(null)));
 		
 	}
 }

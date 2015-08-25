@@ -30,7 +30,7 @@ public class SampleController {
 	@Autowired
 	private CityService cityService;
 
-	@RequestMapping("/")
+	@RequestMapping("/sample")
 	@ResponseBody
 	@Transactional(readOnly = true)
 	public String helloWorld() {
