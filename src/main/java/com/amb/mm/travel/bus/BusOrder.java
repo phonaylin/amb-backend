@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -22,21 +23,21 @@ public class BusOrder extends Order{
 	
 	@ManyToOne(optional = false)
 	private Customer customer;
-
-	@ManyToOne(optional = true)
-	private BusSchedule confirmedSchedule;
 	
 	private String comment;
 	
-	@OneToMany(mappedBy = "busOrder", cascade = CascadeType.ALL)
+	private String bookingRefId;
+	
+	@OneToMany(mappedBy = "busOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<BusOrderItem> orderItems = new ArrayList<BusOrderItem>();
 	
 	public BusOrder() {
 		super();
 	}
 	
-	public BusOrder(BusOffer busOffer, Customer customer, String comment, OrderStatusType orderStatus) {
+	public BusOrder(String bookingRefId, BusOffer busOffer, Customer customer, String comment, OrderStatusType orderStatus) {
 		super(busOffer.getFare(), orderStatus);
+		this.bookingRefId = bookingRefId;
 		this.busOffer = busOffer;
 		this.customer = customer;
 		this.comment = comment;
@@ -57,22 +58,12 @@ public class BusOrder extends Order{
 		return customer;
 	}
 
-	public BusSchedule getConfirmedSchedule() {
-		return confirmedSchedule;
-	}
-
 	public String getComment() {
 		return comment;
 	}
 
-	
-
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-	
-	public void setConfirmedSchedule(BusSchedule confirmedSchedule) {
-		this.confirmedSchedule = confirmedSchedule;
 	}
 	
 	public List<Customer> getPassengers() {
@@ -113,5 +104,13 @@ public class BusOrder extends Order{
 			return new BigDecimal(0);
 		
 		return unitPrice.multiply(new BigDecimal(quantity));
+	}
+
+	public String getBookingRefId() {
+		return bookingRefId;
+	}
+
+	public void setBookingRefId(String bookingRefId) {
+		this.bookingRefId = bookingRefId;
 	}
 }

@@ -93,8 +93,8 @@ public class BusOrderRepositoryTests {
 	@Test
 	public void saveOrderOK() {
 		BusOrder myOrder = new BusOrder(this.offer, this.customer, "Comment");
-		myOrder.addOrderItem(new BusOrderItem(myOrder, customer));
-		myOrder.addOrderItem(new BusOrderItem(myOrder, passenger));
+		myOrder.addOrderItem(new BusOrderItem(myOrder, customer, OrderStatusType.OPENED));
+		myOrder.addOrderItem(new BusOrderItem(myOrder, passenger, OrderStatusType.OPENED));
 		
 		myOrder = this.orderRepository.save(myOrder);
 		
@@ -111,12 +111,12 @@ public class BusOrderRepositoryTests {
 	@Test
 	public void changeOrderStatusOK() {
 		BusOrder myOrder = this.orderRepository.findByBusOfferAndCustomer(offer, customer).get(0);
-		myOrder.setConfirmedSchedule(this.scheduleRepository.findByRoute(this.route).get(0));
+//		myOrder.setConfirmedSchedule(this.scheduleRepository.findByRoute(this.route).get(0));
 		myOrder.setOrderStatus(OrderStatusType.CONFIRMED);
 		myOrder = this.orderRepository.save(myOrder);
 		
 		assertThat(myOrder.getOrderStatus(), is(equalTo(OrderStatusType.CONFIRMED)));
-		assertThat(myOrder.getConfirmedSchedule().getBusRoute().getId(), is(equalTo(this.route.getId())));
+//		assertThat(myOrder.getConfirmedSchedule().getBusRoute().getId(), is(equalTo(this.route.getId())));
 	}
 	
 	@Test

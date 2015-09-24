@@ -26,9 +26,11 @@ import com.amb.mm.travel.core.Customer;
 
 interface BusOrderRepository extends CrudRepository<BusOrder, Long> {
 
-	List<BusOrder> findByBusOfferAndCustomer(BusOffer busOffer, Customer customer);
+	List<BusOrder> findByBusOfferAndCustomer(final BusOffer busOffer, final Customer customer);
 	
-	List<BusOrder> findByBusOffer(BusOffer busOffer);
+	List<BusOrder> findByBusOffer(final BusOffer busOffer);
 	
-	List<BusOrder> findByCustomer(Customer customer);
+	List<BusOrder> findByCustomer(final Customer customer);
+	
+	List<BusOrder> findByBookingRefId(final String bookingRefId);
 }

@@ -18,6 +18,7 @@ package com.amb.mm.travel.bus.service;
 
 import java.util.List;
 
+import com.amb.mm.travel.bus.BusBookingDto;
 import com.amb.mm.travel.bus.BusOrderDto;
 
 public interface BusOrderService {
@@ -31,6 +32,12 @@ public interface BusOrderService {
 	boolean changeOrder(Long orderId, BusOrderDto order);
 	
 	List<BusOrderDto> findOrdersByCustomer(Long customerId);
+
+	String bookOrders(BusBookingDto dto);
+
+	BusBookingDto book(BusBookingDto dto);
+	
+	List<BusOrderDto> findOrdersByBookingRefId(final String bookingRefId);
 	
 	
 }

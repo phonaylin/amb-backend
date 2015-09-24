@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amb.mm.travel.bus.BusBookingDto;
 import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusOrderDto;
 import com.amb.mm.travel.bus.BusSchedule;
@@ -100,13 +101,10 @@ public class BusOrderController {
 	
 	@RequestMapping(value="/order", method=RequestMethod.POST)
 	@Transactional
-	public BusOrderDto createBusOrder(@RequestBody BusOrderDto order) {
-		Assert.notNull(order.getCustomer(), "Customer must not be null");
-		Assert.notNull(order.getPassengers(), "Passengers must not be null");
-		Assert.notEmpty(order.getPassengers(), "Passengers must not be empty");
-		Assert.notNull(order.getOfferId(), "OfferID must not be null");
+	public BusBookingDto createBusOrder(@RequestBody BusBookingDto booking) {
+		Assert.notNull(booking.getBuyer(), "Customer must not be null");
 		
-		return orderService.placeOrder(order);
+		return orderService.book(booking);
 	}
 
 }

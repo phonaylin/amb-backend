@@ -1,31 +1,21 @@
 package com.amb.mm.travel.bus.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import javax.mail.internet.MimeMessage;
-
-import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.springframework.util.Assert;
 
+import com.amb.mm.travel.bus.BusBookingDto;
 import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusOrder;
 import com.amb.mm.travel.bus.BusOrderItem;
 import com.amb.mm.travel.bus.BusOrderDto;
 import com.amb.mm.travel.core.Customer;
 import com.amb.mm.travel.core.OrderStatusType;
-import com.amb.mm.travel.core.Route;
 import com.amb.mm.travel.core.service.CustomerRepository;
 
 @Component("busOrderService")
@@ -38,41 +28,80 @@ public class BusOrderServiceImpl implements BusOrderService{
 	
 	private final CustomerRepository customerRepo;
 	
-	@Autowired
-	private final MailingService mailer;
+//	@Autowired
+//	private final MailingService mailer;
     
 	@Autowired
-	public BusOrderServiceImpl(BusOrderRepository orderRepository, BusOfferRepository offerRepository, CustomerRepository customerRepository, MailingService mailer) {
+	public BusOrderServiceImpl(BusOrderRepository orderRepository, BusOfferRepository offerRepository, CustomerRepository customerRepository) {
 		this.orderRepo = orderRepository;
 		this.offerRepo = offerRepository;
 		this.customerRepo = customerRepository;
-		this.mailer = mailer;
+//		this.mailer = mailer;
 	}
-	
 	
 	@Override
 	@Transactional
 	public BusOrderDto placeOrder(BusOrderDto dto) {
-		Long offerId = dto.getOfferId();
-		BusOffer offer = this.offerRepo.findOne(offerId);
-		if (offer != null) {
-			final BusOrder order = new BusOrder(offer, this.customerRepo.save(dto.getCustomer()), dto.getComment(), OrderStatusType.OPENED);
-			for(Customer passenger : dto.getPassengers()) {
-				order.addOrderItem(new BusOrderItem(this.customerRepo.save(passenger)));
+		Long offerId = dto.getOffer().getId();
+		if (offerId != null) {
+			BusOffer offer = this.offerRepo.findOne(offerId);
+			if (offer != null) {
+				final BusOrder order = new BusOrder(dto.getBookingRefId(), offer, this.customerRepo.save(dto.getCustomer()), dto.getComment(), OrderStatusType.OPENED);
+				for(BusOrderItem item : dto.getTickets()) {
+					order.addOrderItem(new BusOrderItem(this.customerRepo.save(item.getPassenger()), item.getPlannedTravelDate(), OrderStatusType.OPENED));
+				}
+				
+				// send email to customer
+				//mailer.sendConfirmationEmail(order);
+				//TODO: to send email
+				
+				return convertOrderToDto(this.orderRepo.save(order));
 			}
-			
-			// send email to customer
-			//mailer.sendConfirmationEmail(order);
-			//TODO: to send email
-			
-			return convertOrderToDto(this.orderRepo.save(order));
 		}
 
 		return null;
 	}
+	
+	@Override
+	@Transactional
+	public String bookOrders(BusBookingDto booking) {
+		final String bookingRefId = UUID.randomUUID().toString();
+		
+		final Customer buyer = this.customerRepo.save(booking.getBuyer());
+		
+		for(BusOrderDto dto : booking.getOrders()) {
+			dto.setCustomer(buyer);
+			dto.setBookingRefId(bookingRefId);
+			
+			placeOrder(dto);
+		}
 
+		return bookingRefId;
+	}
+	
+	@Override
+	@Transactional
+	public BusBookingDto book(BusBookingDto booking) {
+		BusBookingDto newBooking = new BusBookingDto();
+		final String bookingRefId = UUID.randomUUID().toString();
+		
+		final Customer buyer = this.customerRepo.save(booking.getBuyer());
+		
+		newBooking.setBuyer(buyer);
+		
+		for(BusOrderDto dto : booking.getOrders()) {
+			dto.setCustomer(buyer);
+			dto.setBookingRefId(bookingRefId);
+			
+			newBooking.getOrders().add(placeOrder(dto));
+			newBooking.setBookingRefId(bookingRefId);
+		}
+
+		return newBooking;
+	}
+	
 	private BusOrderDto convertOrderToDto(BusOrder order) {
-		BusOrderDto dto = new BusOrderDto(order.getBusOffer().getId(), order.getCustomer(), order.getPassengers(), order.getComment(), order.getUnitPrice(), order.getTotalPrice());
+		BusOrderDto dto = new BusOrderDto(order.getBookingRefId(), order.getBusOffer(), order.getCustomer(), new ArrayList<BusOrderItem>(order.getOrderItems()), order.getComment(), order.getUnitPrice(), order.getTotalPrice());
 		return dto;
 	}
 	
@@ -111,6 +140,17 @@ public class BusOrderServiceImpl implements BusOrderService{
 		return orderDtos;
 	}
 
+	@Override
+	public List<BusOrderDto> findOrdersByBookingRefId(String bookingRefId) {
+		List<BusOrderDto> orderDtos = new ArrayList<BusOrderDto>();
+		List<BusOrder> orders = this.orderRepo.findByBookingRefId(bookingRefId);
+		if (orders != null && !orders.isEmpty()) {
+			for(BusOrder o : orders) {
+				orderDtos.add(convertOrderToDto(o));
+			}
+		}
+		return orderDtos;
+	}
 
 	@Override
 	public BusOrderDto findOne(Long orderId) {

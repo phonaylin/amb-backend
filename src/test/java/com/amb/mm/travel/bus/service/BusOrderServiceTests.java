@@ -22,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.amb.mm.travel.AmbApplication;
+import com.amb.mm.travel.bus.BusBookingDto;
 import com.amb.mm.travel.bus.BusOffer;
 import com.amb.mm.travel.bus.BusOrderDto;
+import com.amb.mm.travel.bus.BusOrderItem;
 import com.amb.mm.travel.bus.BusType;
 import com.amb.mm.travel.core.Customer;
 import com.amb.mm.travel.core.POI;
@@ -57,37 +59,84 @@ public class BusOrderServiceTests {
 	@Autowired
 	CustomerRepository customerRepo;
 	
-	BusOrderDto goodOrder;
+	@Autowired
+	BusOfferRepository offerRepo;
 	
-	BusOrderDto badOrder;
+	BusOffer offerOne, offerTwo;
+	
+	Customer customerOne, customerTwo;
+	
 	
 	@Before
 	public void setUp() {
-		List<Customer> passengers = new ArrayList<Customer>();
-		passengers.add(new Customer("Passenger", "A"));
-		passengers.add(new Customer("Passenger", "B"));
-		passengers.add(new Customer("Passenger", "C"));
+		offerOne = offerRepo.findOne(1L);
 		
-		goodOrder = new BusOrderDto(1L, new Customer("Good", "Guy"), passengers, "Whateverr!!");
+		offerTwo = offerRepo.findOne(2L);
 		
-		badOrder = new BusOrderDto(0L, new Customer("Bad", "Guy"), passengers, "What so everr!!");
+		customerOne = customerRepo.findOne(1L);
+		
+		customerTwo = customerRepo.findOne(2L);
+		
+//		List<BusOrderItem> tickets = new ArrayList<BusOrderItem>();
+//		tickets.add(new BusOrderItem(customerOne));
+//		tickets.add(new BusOrderItem(customerTwo));
+//		
+//		goodOrder = new BusOrderDto(offerOne, customerOne, tickets, "Whateverr!!");
+//		
+//		badOrder = new BusOrderDto(new BusOffer(), customerOne, tickets, "What so everr!!");
+		
 	}
 	
 	@Test
 	public void testPlaceGoodOrder() {
+		List<BusOrderItem> tickets = new ArrayList<BusOrderItem>();
+		tickets.add(new BusOrderItem(customerOne));
+		tickets.add(new BusOrderItem(customerTwo));
+		
+		BusOrderDto goodOrder = new BusOrderDto(offerOne, customerOne, tickets, "Whateverr!!");
+		
 		BusOrderDto savedOrder = this.service.placeOrder(goodOrder);
 		
-		assertThat(savedOrder.getOfferId(), is(1L));
-		assertThat(savedOrder.getCustomer().getFirstName(), is(equalTo("Good")));
-		assertThat(savedOrder.getPassengers().size(), is(equalTo(3))); // TODO not concrete checking
+		assertThat(savedOrder.getOffer(), is(offerOne));
+		assertThat(savedOrder.getCustomer().getFirstName(), is(equalTo("Nay Lin")));
+		assertThat(savedOrder.getTickets().size(), is(equalTo(2))); // TODO not concrete checking
 	}
 	
 	@Test
 	public void testPlaceBadOrder() {
+		BusOrderDto badOrder = new BusOrderDto(new BusOffer(), customerOne, new ArrayList<BusOrderItem>(), "What so everr!!");
+		
 		BusOrderDto savedOrder = this.service.placeOrder(badOrder);
 		
 		assertThat(savedOrder, is(equalTo(null)));
 	}
+	
+	@Test
+	public void testBookOrders() {
+		List<BusOrderItem> tickets = new ArrayList<BusOrderItem>();
+		tickets.add(new BusOrderItem(customerOne));
+		tickets.add(new BusOrderItem(customerTwo));
+		
+		BusOrderDto goodOrder1 = new BusOrderDto(offerOne, customerOne, tickets, "Whateverr!!");
+		
+		BusOrderDto goodOrder2 = new BusOrderDto(offerTwo, customerOne, tickets, "Whateverr!!");
+		
+		BusBookingDto booking = new BusBookingDto();
+		booking.setBuyer(customerOne);
+		booking.getOrders().add(goodOrder1);
+		booking.getOrders().add(goodOrder2);
+		
+		String bookingRefId = this.service.bookOrders(booking);
+		
+		final List<BusOrderDto> orders = this.service.findOrdersByBookingRefId(bookingRefId);
+		
+		assertThat(orders.size(), is(equalTo(2)));
+		assertThat(orders.get(0).getCustomer().getFirstName(), is(equalTo("Nay Lin")));
+		assertThat(orders.get(0).getOffer(), is(equalTo(offerOne)));
+		assertThat(orders.get(1).getOffer(), is(equalTo(offerTwo)));
+		assertThat(orders.get(0).getTickets().size(), is(equalTo(2)));
+	}
+	
 	
 //	boolean cancelOrder(Long orderId);
 //	
