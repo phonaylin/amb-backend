@@ -1,0 +1,55 @@
+{
+	"id": "9ef384de-e5db-d874-9630-3837fd3e4d35",
+	"name": "AMB new",
+	"description": "",
+	"order": [
+		"01af668f-188e-3197-0049-03dacc0180ae",
+		"5885ec20-ed12-8a08-9568-7a808f34bc2d"
+	],
+	"folders": [],
+	"timestamp": 1483843438149,
+	"owner": "64807",
+	"public": false,
+	"requests": [
+		{
+			"id": "01af668f-188e-3197-0049-03dacc0180ae",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://{{hostname}}/bus/routes",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "GET",
+			"collectionId": "9ef384de-e5db-d874-9630-3837fd3e4d35",
+			"data": [],
+			"dataMode": "params",
+			"name": "bus-get all routes",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1483843438149,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "5885ec20-ed12-8a08-9568-7a808f34bc2d",
+			"headers": "",
+			"url": "http://{{hostname}}/bus/offers?from=1&to=2&date=2015-08-01",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "9ef384de-e5db-d874-9630-3837fd3e4d35",
+			"data": null,
+			"dataMode": "params",
+			"name": "get bus offers",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1483843504814,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}
